@@ -368,6 +368,44 @@ The test suite contains 500+ examples covering every element type, inline
 markup, validation, edge cases, both renderers, the CLI, and two full
 integration fixtures.
 
+## Releasing
+
+This repository is set up for [RubyGems trusted publishing](https://guides.rubygems.org/trusted-publishing/).
+The `Release` workflow in `.github/workflows/release.yml` runs when a `v*` tag
+is pushed, runs the specs, and publishes the gem using a short-lived OIDC
+token. No long-lived API key is stored in the repository.
+
+1. Bump `FountainRB::VERSION` in `lib/fountainrb/version.rb`.
+2. Update `CHANGELOG.md` and commit.
+3. Tag and push:
+
+   ```sh
+   git tag v1.0.1
+   git push origin main --tags
+   ```
+
+One-time setup on RubyGems.org:
+
+1. Create an account (and enable MFA — the gemspec sets
+   `rubygems_mfa_required`).
+2. Add a trusted publisher with:
+   - Gem name: `fountainrb`
+   - Repository owner: `jtoy`
+   - Repository name: `fountainrb`
+   - Workflow filename: `release.yml`
+   - Environment: `release`
+
+For the very first release you can either register a **pending** trusted
+publisher before pushing the tag, or publish manually:
+
+```sh
+gem build fountainrb.gemspec --output pkg/fountainrb-1.0.0.gem
+gem push pkg/fountainrb-1.0.0.gem
+```
+
+RubyGems will prompt for your MFA code. Once a version is published it cannot
+be replaced; use `gem yank fountainrb -v 1.0.0` if you need to withdraw it.
+
 ## License
 
 fountainrb is available under the MIT license. See [LICENSE.txt](LICENSE.txt).

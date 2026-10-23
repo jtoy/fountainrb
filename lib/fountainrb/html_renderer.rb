@@ -149,11 +149,11 @@ module FountainRB
     end
 
     def render_character(character)
-      cue = %(<span class="character-name">#{html(character.name)}</span>)
+      parts = [%(<span class="character-name">#{html(character.name)}</span>)]
       character.extensions.each do |extension|
-        cue << %( <span class="extension">(#{html(extension)})</span>)
+        parts << %( <span class="extension">(#{html(extension)})</span>)
       end
-      cue
+      parts.join
     end
   end
 end

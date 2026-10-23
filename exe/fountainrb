@@ -1,0 +1,98 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+
+# Allow running the executable directly from a source checkout.
+lib = File.expand_path("../lib", __dir__)
+$LOAD_PATH.unshift(lib) if File.exist?(File.join(lib, "fountainrb.rb"))
+
+require "fountainrb"
+
+options = {
+  format: :html,
+  notes: false,
+  sections: false,
+  synopses: false
+}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: fountainrb [options] FILE"
+  opts.separator ""
+  opts.separator "Output formats:"
+  opts.on("--html", "Render HTML (default)") { options[:format] = :html }
+  opts.on("--text", "Render plain text") { options[:format] = :text }
+  opts.on("--json", "Emit the parsed screenplay as JSON") { options[:format] = :json }
+  opts.on("--ast", "Print a human-readable element tree") { options[:format] = :ast }
+
+  opts.separator ""
+  opts.separator "Options:"
+  opts.on("--notes", "Include notes in the output") { options[:notes] = true }
+  opts.on("--sections", "Include sections in the output") { options[:sections] = true }
+  opts.on("--synopses", "Include synopses in the output") { options[:synopses] = true }
+
+  opts.separator ""
+  opts.separator "Other:"
+  opts.on("-v", "--version", "Print the version and exit") do
+    puts FountainRB::VERSION
+    exit
+  end
+  opts.on("-h", "--help", "Show this help and exit") do
+    puts opts
+    exit
+  end
+end
+
+begin
+  parser.parse!
+rescue OptionParser::ParseError => error
+  warn "fountainrb: #{error.message}"
+  warn parser
+  exit 1
+end
+
+if ARGV.empty?
+  warn "fountainrb: no input file given"
+  warn parser
+  exit 1
+end
+
+path = ARGV.shift
+
+begin
+  screenplay = FountainRB.parse_file(path)
+rescue Errno::ENOENT
+  warn "fountainrb: no such file: #{path}"
+  exit 1
+rescue SystemCallError => error
+  warn "fountainrb: #{error.message}"
+  exit 1
+end
+
+case options[:format]
+when :html
+  puts screenplay.to_html(
+    notes: options[:notes],
+    sections: options[:sections],
+    synopses: options[:synopses]
+  )
+when :text
+  puts screenplay.to_plain_text(
+    notes: options[:notes],
+    sections: options[:sections],
+    synopses: options[:synopses]
+  )
+when :json
+  require "json"
+  puts JSON.pretty_generate(screenplay.to_h)
+when :ast
+  if screenplay.title_page
+    puts "title_page #{screenplay.title_page.to_h.inspect}"
+  end
+  screenplay.elements.each do |element|
+    hash = element.to_h
+    details = hash.slice(*(hash.keys - %w[type line text]))
+    puts format("%4s  %-14s %p%s", element.line, element.type, element.text,
+      details.empty? ? "" : " #{details.inspect}")
+  end
+end

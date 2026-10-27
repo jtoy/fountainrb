@@ -1,6 +1,8 @@
 # fountainrb
 
 [![CI](https://github.com/jtoy/fountainrb/actions/workflows/ci.yml/badge.svg)](https://github.com/jtoy/fountainrb/actions/workflows/ci.yml)
+[![Gem Version](https://img.shields.io/gem/v/fountainrb)](https://rubygems.org/gems/fountainrb)
+[![Downloads](https://img.shields.io/gem/dt/fountainrb)](https://rubygems.org/gems/fountainrb)
 [![Ruby](https://img.shields.io/badge/ruby-%3E%3D%202.7-cc342d)](https://www.ruby-lang.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 
@@ -33,13 +35,7 @@ puts screenplay.to_html
 Add it to your Gemfile:
 
 ```ruby
-gem "fountainrb"
-```
-
-Until the gem is published on RubyGems, install it straight from GitHub:
-
-```ruby
-gem "fountainrb", github: "jtoy/fountainrb"
+gem "fountainrb", "~> 1.0"
 ```
 
 Or install it directly:
@@ -48,6 +44,7 @@ Or install it directly:
 gem install fountainrb
 ```
 
+Available on [RubyGems](https://rubygems.org/gems/fountainrb).
 There are no runtime dependencies. Ruby 2.7 or newer is required.
 
 ## Quick start
